@@ -13,6 +13,7 @@ namespace Emby.Server.Implementations.Library.Resolvers.TV
     /// </summary>
     public class SeasonResolver : FolderResolver<Season>
     {
+        public override string Name => "JellyfinSeason";
         private readonly IServerConfigurationManager _config;
         private readonly ILibraryManager _libraryManager;
         private readonly ILocalizationManager _localization;

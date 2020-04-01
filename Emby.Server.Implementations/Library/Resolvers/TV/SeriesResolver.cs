@@ -20,6 +20,7 @@ namespace Emby.Server.Implementations.Library.Resolvers.TV
     /// </summary>
     public class SeriesResolver : FolderResolver<Series>
     {
+        public override string Name => "JellyfinSeries";
         private readonly IFileSystem _fileSystem;
         private readonly ILogger _logger;
         private readonly ILibraryManager _libraryManager;
@@ -36,12 +37,6 @@ namespace Emby.Server.Implementations.Library.Resolvers.TV
             _logger = logger;
             _libraryManager = libraryManager;
         }
-
-        /// <summary>
-        /// Gets the priority.
-        /// </summary>
-        /// <value>The priority.</value>
-        public override ResolverPriority Priority => ResolverPriority.Second;
 
         /// <summary>
         /// Resolves the specified args.

@@ -11,6 +11,8 @@ namespace Emby.Server.Implementations.Library.Resolvers.Books
 {
     public class BookResolver : MediaBrowser.Controller.Resolvers.ItemResolver<Book>
     {
+        public override string Name => "JellyfinBooks";
+
         private readonly string[] _validExtensions = { ".pdf", ".epub", ".mobi", ".cbr", ".cbz", ".azw3" };
 
         protected override Book Resolve(ItemResolveArgs args)

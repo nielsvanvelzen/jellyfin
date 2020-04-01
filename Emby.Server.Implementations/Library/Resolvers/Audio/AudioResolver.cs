@@ -19,18 +19,14 @@ namespace Emby.Server.Implementations.Library.Resolvers.Audio
     /// </summary>
     public class AudioResolver : ItemResolver<MediaBrowser.Controller.Entities.Audio.Audio>, IMultiItemResolver
     {
+        public override string Name => "JellyfinAudio";
+
         private readonly ILibraryManager LibraryManager;
 
         public AudioResolver(ILibraryManager libraryManager)
         {
             LibraryManager = libraryManager;
         }
-
-        /// <summary>
-        /// Gets the priority.
-        /// </summary>
-        /// <value>The priority.</value>
-        public override ResolverPriority Priority => ResolverPriority.Fourth;
 
         public MultiItemResolverResult ResolveMultiple(Folder parent,
             List<FileSystemMetadata> files,

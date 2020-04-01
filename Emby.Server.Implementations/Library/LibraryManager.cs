@@ -75,13 +75,7 @@ namespace Emby.Server.Implementations.Library
         /// <value>The entity resolution ignore rules.</value>
         private IResolverIgnoreRule[] EntityResolutionIgnoreRules { get; set; }
 
-        /// <summary>
-        /// Gets or sets the list of currently registered entity resolvers
-        /// </summary>
-        /// <value>The entity resolvers enumerable.</value>
-        private IItemResolver[] EntityResolvers { get; set; }
-
-        private IMultiItemResolver[] MultiItemResolvers { get; set; }
+        private IItemResolver[] Resolvers { get; set; }
 
         /// <summary>
         /// Gets or sets the comparers.
@@ -214,8 +208,7 @@ namespace Emby.Server.Implementations.Library
             IEnumerable<ILibraryPostScanTask> postscanTasks)
         {
             EntityResolutionIgnoreRules = rules.ToArray();
-            EntityResolvers = resolvers.OrderBy(i => i.Priority).ToArray();
-            MultiItemResolvers = EntityResolvers.OfType<IMultiItemResolver>().ToArray();
+            Resolvers = resolvers.ToArray();
             IntroProviders = introProviders.ToArray();
             Comparers = itemComparers.ToArray();
             PostscanTasks = postscanTasks.ToArray();
@@ -468,7 +461,15 @@ namespace Emby.Server.Implementations.Library
         /// <returns>BaseItem.</returns>
         private BaseItem ResolveItem(ItemResolveArgs args, IItemResolver[] resolvers)
         {
-            var item = (resolvers ?? EntityResolvers).Select(r => Resolve(args, r))
+            if (resolvers == null)
+            {
+                // find by library
+                _logger.Log(LogLevel.Information, "Retrieving resolvers");
+
+                resolvers = GetResolversForBaseItem(args.Parent, args.GetLibraryOptions());
+            }
+
+            var item = resolvers.Select(r => Resolve(args, r))
                 .FirstOrDefault(i => i != null);
 
             if (item != null)
@@ -477,6 +478,27 @@ namespace Emby.Server.Implementations.Library
             }
 
             return item;
+        }
+
+        /// <summary>
+        /// Returns an array containing all resolvers enabled for this items library in order of priority
+        /// </summary>
+        private IItemResolver[] GetResolversForBaseItem(BaseItem baseItem, LibraryOptions options)
+        {
+            if (baseItem == null || options == null)
+            {
+                return new IItemResolver[] { new FolderResolver() };
+            }
+
+            _logger.Log(LogLevel.Debug, "Type is " + baseItem.GetType().Name);
+            //todo typeOptions is always null because the libraryoptions is basically all null...
+            var typeOptions = options.GetTypeOptions(baseItem.GetType().Name);
+            var resolverNames = typeOptions.ResolverFetcherOrder;
+            _logger.Log(LogLevel.Information, "Found " + resolverNames.Length + " resolvers");
+
+            return Resolvers
+                .Where(r => resolverNames.Contains(r.Name))
+                .ToArray();
         }
 
         private BaseItem Resolve(ItemResolveArgs args, IItemResolver resolver)
@@ -649,9 +671,10 @@ namespace Emby.Server.Implementations.Library
             return !args.ContainsFileSystemEntryByName(".ignore");
         }
 
-        public IEnumerable<BaseItem> ResolvePaths(IEnumerable<FileSystemMetadata> files, IDirectoryService directoryService, Folder parent, LibraryOptions libraryOptions, string collectionType)
+        public IEnumerable<BaseItem> ResolvePaths(
+            IEnumerable<FileSystemMetadata> files, IDirectoryService directoryService, Folder parent, LibraryOptions libraryOptions, string collectionType)
         {
-            return ResolvePaths(files, directoryService, parent, libraryOptions, collectionType, EntityResolvers);
+            return ResolvePaths(files, directoryService, parent, libraryOptions, collectionType, GetResolversForBaseItem(parent, libraryOptions));
         }
 
         public IEnumerable<BaseItem> ResolvePaths(
@@ -666,7 +689,7 @@ namespace Emby.Server.Implementations.Library
 
             if (parent != null)
             {
-                var multiItemResolvers = resolvers == null ? MultiItemResolvers : resolvers.OfType<IMultiItemResolver>().ToArray();
+                var multiItemResolvers = resolvers.OfType<IMultiItemResolver>().ToArray();
 
                 foreach (var resolver in multiItemResolvers)
                 {

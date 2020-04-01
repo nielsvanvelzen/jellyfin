@@ -11,6 +11,8 @@ namespace Emby.Server.Implementations.Library.Resolvers.TV
     /// </summary>
     public class EpisodeResolver : BaseVideoResolver<Episode>
     {
+        public override string Name => "JellyfinEpisodes";
+
         /// <summary>
         /// Resolves the specified args.
         /// </summary>

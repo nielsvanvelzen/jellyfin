@@ -16,6 +16,8 @@ namespace Emby.Server.Implementations.Library.Resolvers.Audio
     /// </summary>
     public class MusicAlbumResolver : ItemResolver<MusicAlbum>
     {
+        public override string Name => "JellyfinMusicAlbum";
+
         private readonly ILogger _logger;
         private readonly IFileSystem _fileSystem;
         private readonly ILibraryManager _libraryManager;
@@ -32,12 +34,6 @@ namespace Emby.Server.Implementations.Library.Resolvers.Audio
             _fileSystem = fileSystem;
             _libraryManager = libraryManager;
         }
-
-        /// <summary>
-        /// Gets the priority.
-        /// </summary>
-        /// <value>The priority.</value>
-        public override ResolverPriority Priority => ResolverPriority.Second;
 
         /// <summary>
         /// Resolves the specified args.

@@ -9,11 +9,7 @@ namespace Emby.Server.Implementations.Library.Resolvers
     /// </summary>
     public class FolderResolver : FolderResolver<Folder>
     {
-        /// <summary>
-        /// Gets the priority.
-        /// </summary>
-        /// <value>The priority.</value>
-        public override ResolverPriority Priority => ResolverPriority.Last;
+        public override string Name => "JellyfinFolder";
 
         /// <summary>
         /// Resolves the specified args.

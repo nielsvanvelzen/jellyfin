@@ -13,6 +13,7 @@ namespace Emby.Server.Implementations.Library.Resolvers
 {
     public class SpecialFolderResolver : FolderResolver<Folder>
     {
+        public override string Name => "JellyfinSpecialFolder";
         private readonly IFileSystem _fileSystem;
         private readonly IServerApplicationPaths _appPaths;
 
@@ -21,12 +22,6 @@ namespace Emby.Server.Implementations.Library.Resolvers
             _fileSystem = fileSystem;
             _appPaths = appPaths;
         }
-
-        /// <summary>
-        /// Gets the priority.
-        /// </summary>
-        /// <value>The priority.</value>
-        public override ResolverPriority Priority => ResolverPriority.First;
 
         /// <summary>
         /// Resolves the specified args.

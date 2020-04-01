@@ -16,6 +16,8 @@ namespace Emby.Server.Implementations.Library.Resolvers
     /// </summary>
     public class PlaylistResolver : FolderResolver<Playlist>
     {
+        public override string Name => "JellyfinPlaylist";
+
         private string[] _musicPlaylistCollectionTypes = new string[] {
             string.Empty,
             CollectionType.Music

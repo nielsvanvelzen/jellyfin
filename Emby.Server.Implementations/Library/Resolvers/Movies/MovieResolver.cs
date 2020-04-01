@@ -21,6 +21,8 @@ namespace Emby.Server.Implementations.Library.Resolvers.Movies
     /// </summary>
     public class MovieResolver : BaseVideoResolver<Video>, IMultiItemResolver
     {
+        public override string Name => "JellyfinMovies";
+
         private string[] _validCollectionTypes = new[]
         {
                 CollectionType.Movies,
@@ -42,12 +44,6 @@ namespace Emby.Server.Implementations.Library.Resolvers.Movies
         {
             _imageProcessor = imageProcessor;
         }
-
-        /// <summary>
-        /// Gets the priority.
-        /// </summary>
-        /// <value>The priority.</value>
-        public override ResolverPriority Priority => ResolverPriority.Third;
 
         /// <inheritdoc />
         public MultiItemResolverResult ResolveMultiple(

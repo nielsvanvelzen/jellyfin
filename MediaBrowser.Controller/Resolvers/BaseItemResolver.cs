@@ -10,6 +10,8 @@ namespace MediaBrowser.Controller.Resolvers
     public abstract class ItemResolver<T> : IItemResolver
         where T : BaseItem, new()
     {
+        public abstract string Name { get; }
+
         /// <summary>
         /// Resolves the specified args.
         /// </summary>
@@ -19,12 +21,6 @@ namespace MediaBrowser.Controller.Resolvers
         {
             return null;
         }
-
-        /// <summary>
-        /// Gets the priority.
-        /// </summary>
-        /// <value>The priority.</value>
-        public virtual ResolverPriority Priority => ResolverPriority.First;
 
         /// <summary>
         /// Sets initial values on the newly resolved item

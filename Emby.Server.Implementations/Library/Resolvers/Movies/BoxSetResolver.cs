@@ -12,6 +12,8 @@ namespace Emby.Server.Implementations.Library.Resolvers.Movies
     /// </summary>
     public class BoxSetResolver : FolderResolver<BoxSet>
     {
+        public override string Name => "JellyfinBoxSet";
+
         /// <summary>
         /// Resolves the specified args.
         /// </summary>

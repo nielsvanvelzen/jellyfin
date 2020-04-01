@@ -8,6 +8,8 @@ namespace Emby.Server.Implementations.Library.Resolvers
     public class GenericVideoResolver<T> : BaseVideoResolver<T>
         where T : Video, new()
     {
+        public override string Name => "JellyfinVideo";
+
         public GenericVideoResolver(ILibraryManager libraryManager)
             : base(libraryManager)
         {

@@ -13,6 +13,8 @@ namespace Emby.Server.Implementations.Library.Resolvers
 {
     public class PhotoResolver : ItemResolver<Photo>
     {
+        public override string Name => "JellyfinPhoto";
+
         private readonly IImageProcessor _imageProcessor;
         private readonly ILibraryManager _libraryManager;
         private static readonly HashSet<string> _ignoreFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase)

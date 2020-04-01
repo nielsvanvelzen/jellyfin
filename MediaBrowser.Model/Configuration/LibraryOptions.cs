@@ -101,6 +101,9 @@ namespace MediaBrowser.Model.Configuration
         public string[] ImageFetcherOrder { get; set; }
         public ImageOption[] ImageOptions { get; set; }
 
+        public string[] ResolverFetchers { get; set; }
+        public string[] ResolverFetcherOrder { get; set; }
+
         public ImageOption GetImageOptions(ImageType type)
         {
             foreach (var i in ImageOptions)
@@ -147,6 +150,8 @@ namespace MediaBrowser.Model.Configuration
             ImageFetchers = Array.Empty<string>();
             ImageFetcherOrder = Array.Empty<string>();
             ImageOptions = Array.Empty<ImageOption>();
+            ResolverFetchers = Array.Empty<string>();
+            ResolverFetcherOrder = Array.Empty<string>();
         }
 
         public static Dictionary<string, ImageOption[]> DefaultImageOptions = new Dictionary<string, ImageOption[]>

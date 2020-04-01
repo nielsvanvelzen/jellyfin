@@ -12,6 +12,7 @@ namespace Emby.Server.Implementations.Library.Resolvers
     /// </summary>
     public class PhotoAlbumResolver : FolderResolver<PhotoAlbum>
     {
+        public override string Name => "JellyfinPhotoAlbum";
         private readonly IImageProcessor _imageProcessor;
         private ILibraryManager _libraryManager;
 
@@ -84,8 +85,5 @@ namespace Emby.Server.Implementations.Library.Resolvers
 
             return false;
         }
-
-        /// <inheritdoc />
-        public override ResolverPriority Priority => ResolverPriority.Second;
     }
 }
