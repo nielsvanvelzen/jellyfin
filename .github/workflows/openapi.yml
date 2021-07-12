@@ -1,0 +1,92 @@
+name: OpenAPI
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  openapi-head:
+    name: OpenAPI - HEAD
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '5.0.x'
+      - name: Generate openapi.json
+        run: dotnet test -c Release --filter "Jellyfin.Server.Integration.Tests.OpenApiSpecTests"
+      - name: Upload openapi.json
+        uses: actions/upload-artifact@v2
+        with:
+          name: openapi-head
+          retention-days: 14
+          if-no-files-found: error
+          path: tests/Jellyfin.Server.Integration.Tests/bin/Release/net5.0/openapi.json
+
+  openapi-target:
+    name: OpenAPI - TARGET
+    if: ${{ github.head_ref != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '5.0.x'
+      - name: Generate openapi.json
+        run: dotnet test -c Release --filter "Jellyfin.Server.Integration.Tests.OpenApiSpecTests"
+      - name: Upload openapi.json
+        uses: actions/upload-artifact@v2
+        with:
+          name: openapi-target
+          retention-days: 14
+          if-no-files-found: error
+          path: tests/Jellyfin.Server.Integration.Tests/bin/Release/net5.0/openapi.json
+
+  openapi-diff:
+    name: OpenAPI - Difference
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    needs:
+      - openapi-head
+      - openapi-target
+    steps:
+      - name: Download openapi-head
+        uses: actions/download-artifact@v2
+        with:
+          name: openapi-head
+          path: openapi-head
+      - name: Download openapi-target
+        uses: actions/download-artifact@v2
+        with:
+          name: openapi-target
+          path: openapi-target
+      - name: Workaround openapi-diff issue
+        run: |
+          sed -i 's/"allOf"/"oneOf"/g' openapi-head/openapi.json
+          sed -i 's/"allOf"/"oneOf"/g' openapi-target/openapi.json
+      - name: Calculate OpenAPI difference
+        uses: docker://openapitools/openapi-diff
+        continue-on-error: true
+        with:
+          args: --fail-on-changed --markdown openapi-changes.md openapi-target/openapi.json openapi-head/openapi.json
+      - id: read-diff
+        name: Read openapi-diff output
+        run: |
+          body=$(cat openapi-changes.md)
+          body="${body//'%'/'%25'}"
+          body="${body//$'\n'/'%0A'}"
+          body="${body//$'\r'/'%0D'}"
+          echo ::set-output name=body::$body
+      - name: Reply difference comment
+        uses: peter-evans/create-or-update-comment@v1.4.5
+        if: ${{ steps.read-diff.outputs.body != '' }}
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: ${{ steps.read-diff.outputs.body }}
