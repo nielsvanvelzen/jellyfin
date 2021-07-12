@@ -1,0 +1,76 @@
+name: OpenAPI
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  openapi-head:
+    name: OpenAPI - HEAD
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '5.0.x'
+      - name: Generate openapi.json
+        run: dotnet test -c Release --filter "Jellyfin.Server.Integration.Tests.OpenApiSpecTests"
+      - name: Upload openapi.json
+        uses: actions/upload-artifact@v2
+        with:
+          name: openapi-head
+          retention-days: 14
+          if-no-files-found: error
+          path: tests/Jellyfin.Server.Integration.Tests/bin/Release/net5.0/openapi.json
+
+  openapi-target:
+    name: OpenAPI - TARGET
+    if: ${{ github.head_ref != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '5.0.x'
+      - name: Generate openapi.json
+        run: dotnet test -c Release --filter "Jellyfin.Server.Integration.Tests.OpenApiSpecTests"
+      - name: Upload openapi.json
+        uses: actions/upload-artifact@v2
+        with:
+          name: openapi-target
+          retention-days: 14
+          if-no-files-found: error
+          path: tests/Jellyfin.Server.Integration.Tests/bin/Release/net5.0/openapi.json
+
+  openapi-diff:
+    name: OpenAPI - Difference
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    needs:
+      - openapi-head
+      - openapi-target
+    steps:
+      - name: Download openapi-head
+        uses: actions/download-artifact@v2
+        with:
+          name: openapi-head
+          path: openapi-head
+      - name: Download openapi-target
+        uses: actions/download-artifact@v2
+        with:
+          name: openapi-target
+          path: openapi-target
+      - name: Calculate OpenAPI difference
+        uses: LimeFlight/openapi-diff-action@master
+        with:
+          exclude_labels: true
+          head_spec: openapi-head/openapi.json
+          base_spec: openapi-target/openapi.json
+          github_token: ${{ github.token }}
