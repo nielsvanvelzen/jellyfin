@@ -62,18 +62,18 @@ namespace Jellyfin.Api.Controllers
         /// <summary>
         /// Attempts to retrieve authentication information.
         /// </summary>
-        /// <param name="secret">Secret previously returned from the Initiate endpoint.</param>
+        /// <param name="requestSecret">Secret previously returned from the Initiate endpoint.</param>
         /// <response code="200">Quick connect result returned.</response>
         /// <response code="404">Unknown quick connect secret.</response>
         /// <returns>An updated <see cref="QuickConnectResult"/>.</returns>
         [HttpGet("Connect")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<QuickConnectResult> Connect([FromQuery, Required] string secret)
+        public ActionResult<QuickConnectResult> Connect([FromQuery, Required] string requestSecret)
         {
             try
             {
-                return _quickConnect.CheckRequestStatus(secret);
+                return _quickConnect.CheckRequestStatus(requestSecret);
             }
             catch (ResourceNotFoundException)
             {
@@ -88,7 +88,7 @@ namespace Jellyfin.Api.Controllers
         /// <summary>
         /// Authorizes a pending quick connect request.
         /// </summary>
-        /// <param name="code">Quick connect code to authorize.</param>
+        /// <param name="identificationCode">Quick connect code to authorize.</param>
         /// <response code="200">Quick connect result authorized successfully.</response>
         /// <response code="403">Unknown user id.</response>
         /// <returns>Boolean indicating if the authorization was successful.</returns>
@@ -96,7 +96,7 @@ namespace Jellyfin.Api.Controllers
         [Authorize(Policy = Policies.DefaultAuthorization)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public ActionResult<bool> Authorize([FromQuery, Required] string code)
+        public ActionResult<bool> Authorize([FromQuery, Required] string identificationCode)
         {
             var userId = ClaimHelpers.GetUserId(Request.HttpContext.User);
             if (!userId.HasValue)
@@ -106,7 +106,7 @@ namespace Jellyfin.Api.Controllers
 
             try
             {
-                return _quickConnect.AuthorizeRequest(userId.Value, code);
+                return _quickConnect.AuthorizeRequest(userId.Value, identificationCode);
             }
             catch (AuthenticationException)
             {

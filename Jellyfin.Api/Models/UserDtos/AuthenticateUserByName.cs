@@ -16,11 +16,5 @@ namespace Jellyfin.Api.Models.UserDtos
         /// Gets or sets the plain text password.
         /// </summary>
         public string? Pw { get; set; }
-
-        /// <summary>
-        /// Gets or sets the sha1-hashed password.
-        /// </summary>
-        [Obsolete("Send password using pw field")]
-        public string? Password { get; set; }
     }
 }
